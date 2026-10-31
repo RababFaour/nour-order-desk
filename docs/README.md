@@ -1,6 +1,7 @@
 # Nour Candle Studio: Order Desk
 
 **Full name:** [Rabab Ali Faour]
+
 **Branch:** `assignment-4-nour-order-desk`
 
 ## Project summary
@@ -12,8 +13,8 @@ server-owned IDs) are enforced on the server.
 
 ## Install and run
 ```bash
-git clone [ repository URL]
-cd [repository folder]
+git clone [https://github.com/RababFaour/nour-order-desk]
+cd [nour-order-desk]
 git switch assignment-4-nour-order-desk
 npm install
 npm run dev
