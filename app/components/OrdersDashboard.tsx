@@ -59,6 +59,7 @@ export default function OrdersDashboard() {
   async function save(input: FormInput): Promise<boolean> {
   setSaving(true);
   setFormError("");
+  await new Promise((resolve) => setTimeout(resolve, 2000)); // temporary delay
   try {
     const response = await fetch(
       editing ? `/api/orders/${editing.id}` : "/api/orders",
@@ -229,6 +230,31 @@ export default function OrdersDashboard() {
             {message}
           </p>
         )}
+
+        {loadError && (
+  <p className="dashboard-message" role="alert">
+    {loadError}{" "}
+    <button type="button" onClick={retry}>Retry</button>
+  </p>
+)}
+
+{formError && (
+  <p className="dashboard-message" role="alert">
+    {formError}
+  </p>
+)}
+
+{saving && (
+  <p className="dashboard-message" role="status" aria-live="polite">
+    Saving the order…
+  </p>
+)}
+
+{pendingId && (
+  <p className="dashboard-message" role="status" aria-live="polite">
+    Updating the order…
+  </p>
+)}
 
         <div className="workspace-grid">
           <section className="form-panel panel">
