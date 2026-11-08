@@ -6,23 +6,24 @@ unless it is what really happened.
 Screenshots are in `docs/evidence/`.
 
 ## API tests
-| Test | What I sent | Expected | Actual result |
-|---|---|---|---|
-| List orders | `GET /api/orders` | 200, array | as expected |
-| Read existing order | `GET /api/orders/[id]` | 200, object |  as expected  |
-| Create valid order | 3 x $8 | 201, ID, total 24, Pending |  as expected  |
-| Omit customer name | POST without name | 400 |  as expected  |
-| Blank phone | POST with `""` | 400 |  as expected  |
-| Quantity 0, -1, 1.5 | POST/PATCH | 400 |  as expected |
-| Negative or non-numeric unit price | POST | 400 |  as expected |
-| Status `Flying` | PATCH | 400 |  as expected  |
-| Malformed JSON | POST/PATCH | 400, not 500 |  as expected  |
-| Empty PATCH body | PATCH `{}` / no body | 400 | [first 500, then fixed: actual] |
-| Update quantity only | PATCH `{ "quantity": 4 }` | 200, name unchanged, total 32 |  as expected |
-| Wrong `total` sent | POST with `total: 0` | server returns correct total |  as expected |
-| Change an ID | PATCH with a different `id` | ID unchanged |  as expected  |
-| Delete existing order | `DELETE /api/orders/[id]` | 204, no body |  as expected  |
-| Read/update/delete unknown ID | any | 404 |  as expected  |
+
+| Test                               | What I sent                 | Expected                      | Actual result                                         |
+| ---------------------------------- | --------------------------- | ----------------------------- | ----------------------------------------------------- |
+| List orders                        | `GET /api/orders`           | 200, array                    | 200,JSON array of orders                              |
+| Read existing order                | `GET /api/orders/[id]`      | 200, object                   | 200,the single order object                           |
+| Create valid order                 | 3 x $8                      | 201, ID, total 24, Pending    | 201,new id, status:"Pending", unitPrice: 8, total: 24 |
+| Omit customer name                 | POST without name           | 400                           | 400, errors.customerName: "Required"                  |
+| Blank phone                        | POST with `""`              | 400                           | 400, "Must be text"                                   |
+| Quantity 0, -1, 1.5                | POST/PATCH                  | 400                           | 400 each time,"Must be an integer > 0"                |
+| Negative or non-numeric unit price | POST                        | 400                           | 400, "Must be a <=0"                                  |
+| Status `Flying`                    | PATCH                       | 400                           | 400, `error.status` rejects the value                 |
+| Malformed JSON                     | POST/PATCH                  | 400, not 500                  | 400, `error: "Invalid JSON body" `, no 500            |
+| Empty PATCH body                   | PATCH `{}` / no body        | 400                           | first returned 500 then fixed.Now 400                 |
+| Update quantity only               | PATCH `{ "quantity": 4 }`   | 200, name unchanged, total 32 | 200, name unchanged, `unitPrice: 8`, `total: 32`      |
+| Wrong `total` sent                 | POST with `total: 0`        | server returns correct total  | 201, `total: 32`, calculated by the server            |
+| Change an ID                       | PATCH with a different `id` | ID unchanged                  | 200, `id` still the original                          |
+| Delete existing order              | `DELETE /api/orders/[id]`   | 204, no body                  | 204, empty body                                       |
+| Read/update/delete unknown ID      | any                         | 404                           | 404 for PATCH,GET and DELETE                          |
 
 ## Maya's acceptance scenario (dashboard)
 
@@ -58,8 +59,8 @@ Starting state: 1 order in the list, after a clean server restart.
    `GET /api/orders/[deleted id]` returned `404` with the message
    "[Order deleted]".
 
-
 ## Scripts
+
 - `npm run lint`: 0 errors, 6 warnings. All are unused-variable warnings
   (`getOrder` in `route.ts`, and `loadError`, `formError`, `saving`,
   `pendingId` and `retry` in `OrdersDashboard.tsx`). They do not break the
@@ -67,14 +68,13 @@ Starting state: 1 order in the list, after a clean server restart.
 - `npm run build`: completed with no errors. All 6 static pages were
   generated, and `/api/orders` and `/api/orders/[id]` are dynamic routes.
 
-
 ## Mobile check
+
 I checked the dashboard in the browser's mobile view (width [390 px]).
 
 Screenshot:
 
- ![mobile](evidence/mobile.png)
-
+![mobile](evidence/mobile.png)
 
 - The layout [fits the screen].
 - The navigation, the order form and the orders table [are readable and
@@ -82,4 +82,5 @@ Screenshot:
 - [I added an order from the mobile view and it worked].
 
 ## Things I could not verify
+
 None.
