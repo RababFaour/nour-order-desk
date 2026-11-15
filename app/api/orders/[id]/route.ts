@@ -23,7 +23,13 @@ export async function GET(request: Request, { params }: RouteContext) {
 //PATCH
 export async function PATCH(request: Request, { params }: RouteContext) {
   const { id } = await params;
-  const body = await request.json();
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: "Malformed JSON" }, { status: 400 });
+  }
+
   const order = getOrder(id);
   if (!order) {
     return Response.json({ error: "Order not found" }, { status: 404 });
@@ -33,6 +39,12 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     return Response.json({ errors }, { status: 400 });
   }
   const updated = updateOrder(id, data);
+  if (updated === undefined) {
+    return Response.json({ error: "Order not found" }, { status: 404 });
+  }
+  if (updated === null) {
+    return Response.json({ error: "Invalid product name" }, { status: 400 });
+  }
   return Response.json(updated);
 }
 

@@ -62,7 +62,7 @@ export function validateOrder(body: unknown, isNew: boolean) {
   const errors: Record<string, string> = {};
   const data: Record<string, unknown> = {};
   if (typeof body !== "object" || body === null) {
-    return { errors: { body: "Send a JSON object" }, data: {} as OrderInput }; ///////....................
+    return { errors: { body: "Malformed JSON" }, data: {} as OrderInput }; ///////....................
   }
   const input = body as Record<string, unknown>;
 
@@ -154,9 +154,17 @@ export function createOrder(input: OrderInput) {
 export function updateOrder(id: string, changes: OrderInput) {
   const order = getOrder(id);
   if (!order) return undefined;
-  Object.assign(order, changes);
-  order.unitPrice = priceOf(order.productName);
-  order.total = Total(order.quantity, order.unitPrice);
+  const proposed = { ...order, ...changes };
+  let unitPrice: number;
+  try {
+    unitPrice = priceOf(proposed.productName!);
+  } catch {
+    return null; // invalid product name
+  }
+
+  proposed.unitPrice = unitPrice;
+  proposed.total = Total(proposed.quantity!, proposed.unitPrice);
+  Object.assign(order, proposed);
   return order;
 }
 export function deleteOrder(id: string) {
